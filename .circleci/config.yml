@@ -1,0 +1,19 @@
+version: 2.1
+
+jobs:
+  luatest:
+    docker:
+      - image: woahbase/alpine-lua
+    steps:
+      - checkout
+      - run:
+          name: "Install busted"
+          command: "luarocks install busted"
+      - run:
+          name: "Run busted"
+          command: "busted"
+
+workflows:
+  luatest-workflow:
+    jobs:
+      - luatest
