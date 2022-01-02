@@ -3,15 +3,9 @@ version: 2.1
 jobs:
   luatest:
     docker:
-      - image: mileschou/lua:5.3
+      - image: locimation/erlanglua_test
     steps:
       - checkout
-      - run:
-          name: "Get wget & unzip"
-          command: "apt-get update -y && apt-get install -y --no-install-recommends --no-install-suggests wget unzip" 
-      - run:
-          name: "Install busted"
-          command: "docker-luarocks-install busted"
       - run:
           name: "Run busted"
           command: "busted"
