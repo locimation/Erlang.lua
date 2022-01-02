@@ -1,0 +1,19 @@
+version: 2.1
+
+jobs:
+  luatest:
+    docker:
+      - image: locimation/erlanglua_test
+    environment:
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
+    steps:
+      - checkout
+      - run:
+          name: "Run busted"
+          command: "busted"
+
+workflows:
+  luatest-workflow:
+    jobs:
+      - luatest
