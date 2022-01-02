@@ -7,8 +7,8 @@ jobs:
     steps:
       - checkout
       - run:
-          name: "Check for wget"
-          command: "which wget" 
+          name: "Get wget"
+          command: "apt-get update -y && apt-get install -y --no-install-recommends --no-install-suggests wget" 
       - run:
           name: "Install busted"
           command: "docker-luarocks-install busted"
