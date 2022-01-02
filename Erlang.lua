@@ -41,21 +41,45 @@ Erlang = (function()
   end;
 
   local atoms = {};
-  function atom(str)
+  local function atom(str)
     if(#str == 0 or str == nil) then error('Invalid atom'); end;
     if(not atoms[str]) then
       atoms[str] = setmetatable(
         { ATOM = str },
-        { __tostring = function() return 'Erlang Atom :' .. str; end}
+        {
+          __tostring = function() return 'Erlang Atom :' .. str; end,
+          __index = { __type = 'atom' }
+        }
       );
     end;
     return atoms[str];
   end
 
-  function tuple(t)
-    local tbl = { __type = 'tuple'; };
-    for k,v in pairs(t) do tbl[k] = v; end;
+  local function apply(old, meta)
+    local new = setmetatable({}, { __index = meta });
+    for k,v in pairs(old) do new[k] = v; end;
+    return new;
+  end;
+
+  local function tuple(t)
+    return apply(t, { __type = 'tuple' });
+  end;
+
+  local function map(t)
+    return apply(t, { __type = 'map' });
+  end;
+
+  local function list(t)
+    local tbl = apply({}, { __type = 'list' });
+
+     -- copy numeric keys only
+    for i,v in ipairs(t) do tbl[i] = v; end;
     return tbl;
+    
+  end;
+
+  local function typeof(t)
+    return type(t) == 'table' and t.__type or type(t);
   end;
 
   local function hex(s)
@@ -104,7 +128,7 @@ Erlang = (function()
       elem, s = decodeTag(s);
       table.insert(t, elem);
     end;
-    return Erlang.tuple(t), s;
+    return tuple(t), s;
   end;
 
   Decoders[TAG.NIL_EXT] = function(s)
@@ -127,7 +151,7 @@ Erlang = (function()
       v, s = decodeTag(s);
       t[k] = v;
     end;
-    return t, s;
+    return map(t), s;
   end;
 
   Decoders[TAG.LIST_EXT] = function(s)
@@ -141,14 +165,14 @@ Erlang = (function()
     if(type(tail) ~= 'table' or next(tail) ~= nil) then
       table.insert(t, tail);
     end;
-    return t, s;
+    return list(t), s;
   end;
 
   Decoders[TAG.STRING_EXT] = function(s)
     local length, s = unpack('I2', s);
-    local list = {string.unpack(string.rep('B', length), s)};
-    s = s:sub(table.remove(list));
-    return list, s;
+    local elements = {string.unpack(string.rep('B', length), s)};
+    s = s:sub(table.remove(elements));
+    return list(elements), s;
   end;
 
   Decoders[TAG.SMALL_BIG_EXT] = function(s)
@@ -192,7 +216,10 @@ Erlang = (function()
   return {
     decode = decode,
     atom = atom,
-    tuple = tuple
+    tuple = tuple,
+    list = list,
+    map = map,
+    type = typeof
   };
 
 end)();
