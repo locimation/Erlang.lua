@@ -1,4 +1,5 @@
 # Erlang.lua
+[![CircleCI](https://circleci.com/gh/locimation/Erlang.lua.svg?style=svg)](https://app.circleci.com/pipelines/github/locimation/Erlang.lua)
 
 **Erlang.lua** is a Lua library for parsing Erlang's [External Term Format](https://www.erlang.org/doc/apps/erts/erl_ext_dist.html).
 
